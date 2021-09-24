@@ -19,14 +19,12 @@
     FlutterMethodChannel* channel = [FlutterMethodChannel
       methodChannelWithName:@"plugins.hunghd.vn/image_cropper"
             binaryMessenger:[registrar messenger]];
-    // UIViewController *viewController = [self viewControllerWithWindow:nil];
-    UIWindow *windowToUse = window;
-    if (windowToUse == nil) {
-        for (UIWindow *window in [UIApplication sharedApplication].windows) {
+    
+    UIWindow *windowToUse = nil;
+    for (UIWindow *window in [UIApplication sharedApplication].windows) {
         if (window.isKeyWindow) {
             windowToUse = window;
             break;
-        }
         }
     }
 
