@@ -14,13 +14,32 @@
     float _compressQuality;
     NSString *_compressFormat;
 }
+
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
     FlutterMethodChannel* channel = [FlutterMethodChannel
       methodChannelWithName:@"plugins.hunghd.vn/image_cropper"
             binaryMessenger:[registrar messenger]];
-    UIViewController *viewController = [UIApplication sharedApplication].delegate.window.rootViewController;
+    UIViewController *viewController = [self viewControllerWithWindow:nil];
     FLTImageCropperPlugin* instance = [[FLTImageCropperPlugin alloc] initWithViewController:viewController];
     [registrar addMethodCallDelegate:instance channel:channel];
+}
+
+- (UIViewController *)viewControllerWithWindow:(UIWindow *)window {
+  UIWindow *windowToUse = window;
+  if (windowToUse == nil) {
+    for (UIWindow *window in [UIApplication sharedApplication].windows) {
+      if (window.isKeyWindow) {
+        windowToUse = window;
+        break;
+      }
+    }
+  }
+
+  UIViewController *topController = windowToUse.rootViewController;
+  while (topController.presentedViewController) {
+    topController = topController.presentedViewController;
+  }
+  return topController;
 }
 
 - (instancetype)initWithViewController:(UIViewController *)viewController {
