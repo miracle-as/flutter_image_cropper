@@ -19,27 +19,23 @@
     FlutterMethodChannel* channel = [FlutterMethodChannel
       methodChannelWithName:@"plugins.hunghd.vn/image_cropper"
             binaryMessenger:[registrar messenger]];
-    UIViewController *viewController = [self viewControllerWithWindow:nil];
-    FLTImageCropperPlugin* instance = [[FLTImageCropperPlugin alloc] initWithViewController:viewController];
-    [registrar addMethodCallDelegate:instance channel:channel];
-}
-
-- (UIViewController *)viewControllerWithWindow:(UIWindow *)window {
-  UIWindow *windowToUse = window;
-  if (windowToUse == nil) {
-    for (UIWindow *window in [UIApplication sharedApplication].windows) {
-      if (window.isKeyWindow) {
-        windowToUse = window;
-        break;
-      }
+    // UIViewController *viewController = [self viewControllerWithWindow:nil];
+    UIWindow *windowToUse = window;
+    if (windowToUse == nil) {
+        for (UIWindow *window in [UIApplication sharedApplication].windows) {
+        if (window.isKeyWindow) {
+            windowToUse = window;
+            break;
+        }
+        }
     }
-  }
 
-  UIViewController *topController = windowToUse.rootViewController;
-  while (topController.presentedViewController) {
-    topController = topController.presentedViewController;
-  }
-  return topController;
+    UIViewController *topController = windowToUse.rootViewController;
+    while (topController.presentedViewController) {
+        topController = topController.presentedViewController;
+    }
+    FLTImageCropperPlugin* instance = [[FLTImageCropperPlugin alloc] initWithViewController:topController];
+    [registrar addMethodCallDelegate:instance channel:channel];
 }
 
 - (instancetype)initWithViewController:(UIViewController *)viewController {
