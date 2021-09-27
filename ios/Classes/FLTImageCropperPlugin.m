@@ -3,6 +3,7 @@
 #import <UIKit/UIKit.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <Photos/Photos.h>
+#import <os/log.h>
 
 @interface FLTImageCropperPlugin() <TOCropViewControllerDelegate>
 @end
@@ -10,42 +11,38 @@
 @implementation FLTImageCropperPlugin {
     FlutterResult _result;
     NSDictionary *_arguments;
-    UIViewController *_viewController;
     float _compressQuality;
     NSString *_compressFormat;
 }
-
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
     FlutterMethodChannel* channel = [FlutterMethodChannel
       methodChannelWithName:@"plugins.hunghd.vn/image_cropper"
             binaryMessenger:[registrar messenger]];
-    
-    UIWindow *windowToUse = nil;
-    for (UIWindow *window in [UIApplication sharedApplication].windows) {
-        if (window.isKeyWindow) {
-            windowToUse = window;
-            break;
-        }
-    }
-
-    UIViewController *topController = windowToUse.rootViewController;
-    while (topController.presentedViewController) {
-        topController = topController.presentedViewController;
-    }
-    FLTImageCropperPlugin* instance = [[FLTImageCropperPlugin alloc] initWithViewController:topController];
+    FLTImageCropperPlugin* instance = [FLTImageCropperPlugin new];
     [registrar addMethodCallDelegate:instance channel:channel];
 }
 
-- (instancetype)initWithViewController:(UIViewController *)viewController {
-    self = [super init];
-    if (self) {
-        _viewController = viewController;
+- (UIViewController *)viewControllerWithWindow:(UIWindow *)window {
+  UIWindow *windowToUse = window;
+  if (windowToUse == nil) {
+    for (UIWindow *window in [UIApplication sharedApplication].windows) {
+      if (window.isKeyWindow) {
+        windowToUse = window;
+        break;
+      }
     }
-    return self;
+  }
+
+  UIViewController *topController = windowToUse.rootViewController;
+  while (topController.presentedViewController) {
+    topController = topController.presentedViewController;
+  }
+  return topController;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   if ([@"cropImage" isEqualToString:call.method]) {
+      os_log_info(OS_LOG_DEFAULT, "cropImage, Enter CropImage");
       _result = result;
       _arguments = call.arguments;
       NSString *sourcePath = call.arguments[@"source_path"];
@@ -55,8 +52,9 @@
       NSArray *aspectRatioPresets = call.arguments[@"aspect_ratio_presets"];
       NSNumber *compressQuality = call.arguments[@"compress_quality"];
       NSString *compressFormat = call.arguments[@"compress_format"];
-      
+      os_log_info(OS_LOG_DEFAULT, "cropImage, load UIImage from source path %{public}@", sourcePath);
       UIImage *image = [UIImage imageWithContentsOfFile:sourcePath];
+      os_log_info(OS_LOG_DEFAULT, "cropImage, UIImage loaded");
       TOCropViewController *cropViewController;
       
       if ([@"circle" isEqualToString:cropStyle]) {
@@ -95,12 +93,16 @@
           cropViewController.aspectRatioLockDimensionSwapEnabled = YES;
           cropViewController.aspectRatioLockEnabled = YES;
       }
-      
-      [_viewController presentViewController:cropViewController animated:YES completion:nil];
+      os_log_info(OS_LOG_DEFAULT, "cropImage, presenting CropViewController");
+      [[self viewControllerWithWindow:nil] presentViewController:cropViewController
+                                                      animated:YES
+                                                    completion:nil];
   } else {
       result(FlutterMethodNotImplemented);
   }
 }
+
+
 
 - (void)setupUiCustomizedOptions:(id)options forViewController:(TOCropViewController*)controller {
     NSNumber *minimumAspectRatio = options[@"ios.minimum_aspect_ratio"];
