@@ -23,11 +23,13 @@
 
 - (UIViewController *)viewControllerWithWindow:(UIWindow *)window {
   UIWindow *windowToUse = window;
+  UIViewController *topController;
   if (windowToUse == nil) {
     for (UIWindow *window in [UIApplication sharedApplication].windows) {
         for (child in window.rootViewController.children) {
             if ([child isKindOfClass:[FlutterViewController class]]) {
-                return child;
+                topController = child;
+                return topController;
             }
         }
       if (window.isKeyWindow) {
@@ -37,7 +39,7 @@
     }
   }
 
-  UIViewController *topController = windowToUse.rootViewController;
+  topController = windowToUse.rootViewController;
   while (topController.presentedViewController) {
       if ([topController.presentedViewController isKindOfClass:[FlutterViewController class]]) {
           topController = topController.presentedViewController;
