@@ -3,7 +3,6 @@
 #import <UIKit/UIKit.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 #import <Photos/Photos.h>
-#import <os/log.h>
 
 @interface FLTImageCropperPlugin() <TOCropViewControllerDelegate>
 @end
@@ -42,7 +41,6 @@
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   if ([@"cropImage" isEqualToString:call.method]) {
-      os_log_info(OS_LOG_DEFAULT, "cropImage, Enter CropImage");
       _result = result;
       _arguments = call.arguments;
       NSString *sourcePath = call.arguments[@"source_path"];
@@ -52,9 +50,7 @@
       NSArray *aspectRatioPresets = call.arguments[@"aspect_ratio_presets"];
       NSNumber *compressQuality = call.arguments[@"compress_quality"];
       NSString *compressFormat = call.arguments[@"compress_format"];
-      os_log_info(OS_LOG_DEFAULT, "cropImage, load UIImage from source path %{public}@", sourcePath);
       UIImage *image = [UIImage imageWithContentsOfFile:sourcePath];
-      os_log_info(OS_LOG_DEFAULT, "cropImage, UIImage loaded");
       TOCropViewController *cropViewController;
       
       if ([@"circle" isEqualToString:cropStyle]) {
@@ -93,7 +89,6 @@
           cropViewController.aspectRatioLockDimensionSwapEnabled = YES;
           cropViewController.aspectRatioLockEnabled = YES;
       }
-      os_log_info(OS_LOG_DEFAULT, "cropImage, presenting CropViewController");
       [[self viewControllerWithWindow:nil] presentViewController:cropViewController
                                                       animated:YES
                                                     completion:nil];
