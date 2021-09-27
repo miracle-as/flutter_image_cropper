@@ -34,6 +34,10 @@
 
   UIViewController *topController = windowToUse.rootViewController;
   while (topController.presentedViewController) {
+      if ([topController.presentedViewController isKindOfClass:[FlutterViewController class]]) {
+          topController = topController.presentedViewController;
+          break;
+      }
     topController = topController.presentedViewController;
   }
   return topController;
