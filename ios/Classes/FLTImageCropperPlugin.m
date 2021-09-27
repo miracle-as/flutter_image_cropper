@@ -22,32 +22,19 @@
 }
 
 - (UIViewController *)viewControllerWithWindow:(UIWindow *)window {
-  UIWindow *windowToUse = window;
-  UIViewController *topController;
-  if (windowToUse == nil) {
-    for (UIWindow *window in [UIApplication sharedApplication].windows) {
-        for (child in window.rootViewController.children) {
-            if ([child isKindOfClass:[FlutterViewController class]]) {
-                topController = child;
-                return topController;
-            }
+    UIWindow *windowToUse = window;
+    UIViewController *topController;
+    if (windowToUse == nil) {
+    topController = [UIApplication sharedApplication].delegate.window.rootViewController;
+    while (topController.presentedViewController) {
+        if ([topController.presentedViewController isKindOfClass:[FlutterViewController class]]) {
+            topController = topController.presentedViewController;
+            return topController;
         }
-      if (window.isKeyWindow) {
-        windowToUse = window;
-        break;
-      }
+        topController = topController.presentedViewController;
     }
-  }
 
-  topController = windowToUse.rootViewController;
-  while (topController.presentedViewController) {
-      if ([topController.presentedViewController isKindOfClass:[FlutterViewController class]]) {
-          topController = topController.presentedViewController;
-          break;
-      }
-    topController = topController.presentedViewController;
-  }
-  return topController;
+    return topController;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
