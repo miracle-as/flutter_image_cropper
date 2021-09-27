@@ -24,7 +24,7 @@
 - (UIViewController *)viewControllerWithWindow:(UIWindow *)window {
     UIWindow *windowToUse = window;
     UIViewController *topController;
-    if (windowToUse == nil) {
+    
     topController = [UIApplication sharedApplication].delegate.window.rootViewController;
     while (topController.presentedViewController) {
         if ([topController.presentedViewController isKindOfClass:[FlutterViewController class]]) {
