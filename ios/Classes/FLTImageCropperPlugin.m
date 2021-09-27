@@ -25,6 +25,11 @@
   UIWindow *windowToUse = window;
   if (windowToUse == nil) {
     for (UIWindow *window in [UIApplication sharedApplication].windows) {
+        for (child in window.rootViewController.children) {
+            if ([child isKindOfClass:[FlutterViewController class]]) {
+                return child;
+            }
+        }
       if (window.isKeyWindow) {
         windowToUse = window;
         break;
