@@ -22,19 +22,21 @@
 }
 
 - (UIViewController *)viewControllerWithWindow:(UIWindow *)window {
-    UIWindow *windowToUse = window;
-    UIViewController *topController;
-    
-    topController = [UIApplication sharedApplication].delegate.window.rootViewController;
-    while (topController.presentedViewController) {
-        if ([topController.presentedViewController isKindOfClass:[FlutterViewController class]]) {
-            topController = topController.presentedViewController;
-            return topController;
-        }
-        topController = topController.presentedViewController;
+  UIWindow *windowToUse = window;
+  if (windowToUse == nil) {
+    for (UIWindow *window in [UIApplication sharedApplication].windows) {
+      if (window.isKeyWindow) {
+        windowToUse = window;
+        break;
+      }
     }
+  }
 
-    return topController;
+  UIViewController *topController = windowToUse.rootViewController;
+  while (topController.presentedViewController) {
+    topController = topController.presentedViewController;
+  }
+  return topController;
 }
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
@@ -217,13 +219,13 @@
     
     NSString *tmpDirectory = NSTemporaryDirectory();
     NSString *tmpPath = [tmpDirectory stringByAppendingPathComponent:tmpFile];
-    
-    if ([[NSFileManager defaultManager] createFileAtPath:tmpPath contents:data attributes:nil]) {
-        _result(tmpPath);
-    } else {
+    BOOL didCreate = [[NSFileManager defaultManager] createFileAtPath:tmpPath contents:data attributes:nil];
+    if (!didCreate) {
         _result([FlutterError errorWithCode:@"create_error"
                                     message:@"Temporary file could not be created"
                                     details:nil]);
+    } else {
+      _result(tmpPath);
     }
     
     [cropViewController dismissViewControllerAnimated:YES completion:nil];
